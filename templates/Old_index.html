@@ -1,0 +1,58 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Matching</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Resume Matching Tool</h1>
+        <form id="matchingForm" action="/match" method="post" enctype="multipart/form-data">
+            <label for="resume">Upload Resume (PDF or DOC):</label>
+            <input type="file" class="form-control" id="resume" name="resume" multiple required accept=".pdf, .docx, .txt">
+
+            <label for="jobDescription">Job Description:</label>
+            <textarea id="jobDescription" name="jobDescription" rows="6" placeholder="Enter the job description here..." required></textarea>
+
+            <label for="resume_no">Enter Number of Resumes:</label>
+            <input type="number" id="resume_no" name="resume_no" step="1" required>
+
+            <button type="submit">Match</button>
+        </form>
+
+        {% if message %}
+            <p>{{ message }}</p>
+        {% else %}
+            {% if results %}
+                <div id="results">
+                    <h2>Matching Results</h2>
+                    <table id="resultsTable">
+                        <thead>
+                        <tr>
+                            <th>Resume Name</th>
+                            <th>Matching Score</th>
+                            <th>Email ID</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% if results %}
+                                {% for result in results %}
+                                    <tr>
+                                        <td>{{result.resume_name}}</td>
+                                        <td>{{result.score}}</td>
+                                        <td>{{result.email}}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="2">No matching results</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</body>
+</html>

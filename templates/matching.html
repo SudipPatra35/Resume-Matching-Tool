@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Matching</title>
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', 'Helvetica', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(to right, #8bc34a, #00bcd4);
+            color: #fff;
+            font-size: 16px;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            overflow: auto;
+            padding-top: 50px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #483d8b;  /* Dark Slate Blue */
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: #483d8b;  /* Dark Slate Blue */
+            text-align: center;
+            margin-top: 20px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Common Container */
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            overflow-y: auto;
+        }
+
+        /* Form Styling */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        label {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+            text-align: left;
+            margin-bottom: 5px;
+        }
+
+        textarea, input[type="number"], select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: #333;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus, input[type="number"]:focus, select:focus {
+            border-color: #00bcd4;
+            box-shadow: 0 0 8px rgba(0, 188, 212, 0.3);
+        }
+
+        /* Button Styling */
+        button {
+            background-color: #2575fc;
+            color: #fff;
+            font-size: 1.2rem;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #6a11cb;
+            transform: translateY(-2px);
+        }
+
+        /* Results Section */
+        #results {
+            margin-top: 40px;
+        }
+
+        #resultsTable {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            text-align: left;
+            overflow-x: auto;
+            display: block;
+        }
+
+        #resultsTable th, #resultsTable td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            color: #333;
+        }
+
+        #resultsTable th {
+            background-color: #00bcd4;
+            color: #1a0000;
+        }
+
+        #resultsTable tr:nth-child(even) {
+            background-color: #f4f4f4;
+        }
+
+        #resultsTable tr:hover {
+            background-color: #e0f7fa;
+        }
+
+        #resultsTable td {
+            text-align: center;
+        }
+
+        /* No Results Styling */
+        #resultsTable td[colspan="3"] {
+            text-align: center;
+            color: #f44336;  /* Red */
+            font-weight: bold;
+        }
+
+        /* Container for checkboxes */
+            #checkboxContainer {
+                text-align: left;
+                margin-top: 10px;
+            }
+
+            /* Checkbox labels */
+            #checkboxList label {
+                display: block;
+                margin: 5px 0; /* Reduced spacing */
+                font-size: 1rem;
+                color: #333;
+                cursor: pointer;
+            }
+
+            /* "Select All" label styling */
+            #selectAll {
+                margin-bottom: 10px; /* Space between "Select All" and the list */
+            }
+
+            input[type="checkbox"] {
+                margin-right: 8px;
+                cursor: pointer;
+            }
+
+        /* Message Display */
+        p {
+            color: #333;
+            font-size: 1rem;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            form {
+                gap: 15px;
+            }
+
+            button {
+                font-size: 1rem;
+                padding: 10px;
+            }
+
+            #resultsTable {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Resume Matching Tool</h1>
+
+        <!-- Matching Form -->
+        <form action="{{ url_for('match_resumes') }}" method="POST">
+            <label for="jobDescription">Job Description:</label>
+            <textarea id="jobDescription" name="jobDescription" rows="6" placeholder="Enter job description here..." required></textarea>
+
+            <label for="resume_no">Number of Resumes to Match:</label>
+            <input type="number" id="resume_no" name="resume_no" required min="1">
+
+            <label for="approvedResumes">Select Resumes:</label>
+            <div id="checkboxContainer">
+                <label>
+                    <input type="checkbox" id="selectAll" onclick="toggleAllCheckboxes(this)">
+                    Select All
+                </label>
+                <div id="checkboxList">
+                    {% if approved_resumes %}
+                        {% for resume in approved_resumes %}
+                            <label>
+                                <input type="checkbox" class="resumeCheckbox" name="approvedResumes" value="{{ resume[0] }}">
+                                {{ resume[1] }}
+                            </label>
+                        {% endfor %}
+                    {% else %}
+                        <p>No approved resumes found</p>
+                    {% endif %}
+                </div>
+            </div>
+            <script>
+                function toggleAllCheckboxes(selectAllCheckbox) {
+                    const checkboxes = document.querySelectorAll('.resumeCheckbox');
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = selectAllCheckbox.checked;
+                    });
+                }
+            </script>            
+
+            <button type="submit">Match</button>
+        </form>
+
+        {% if results %}
+        <div id="results">
+            <h2>Matching Results</h2>
+            <table id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>View</th>
+                        <th>Matching Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                        <tr>
+                            <td>{{ result.student_name }}</td>
+                            
+                            <td>
+                                <a
+                                  href="{{ url_for('uploaded_file', user_id = result.userID) }}"
+                                  target="_blank"
+                                  >View Resume</a
+                                >
+                              </td>
+                              <td>{{ result.score }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(to right, #00bcd4, #8bc34a);
+            color: #fff;
+            font-size: 16px;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Fixes the upper part visibility */
+            height: 100vh;
+            overflow: auto; /* Ensures the content scrolls if needed */
+            padding-top: 50px; /* Prevents cut-off at the top */
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2rem;
+            color: #483d8b;  /* Dark Slate Blue */
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Register Page Styles */
+        .register-container {
+            max-width: 600px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            overflow-y: auto; /* Ensure content does not overflow */
+            margin-top: 20px;
+        }
+
+        .register-container form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .register-container label {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+            text-align: left;
+            margin-bottom: 5px;
+        }
+
+        .register-container input,
+        .register-container select,
+        .register-container textarea {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: #333;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .register-container input:focus,
+        .register-container select:focus,
+        .register-container textarea:focus {
+            border-color: #00bcd4;
+            box-shadow: 0 0 8px rgba(0, 188, 212, 0.3);
+        }
+
+        .register-container button {
+            background-color: #2575fc;
+            color: #fff;
+            font-size: 1.2rem;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: bold;
+        }
+
+        .register-container button:hover {
+            background-color: #6a11cb;
+            transform: translateY(-2px);
+        }
+
+        .register-container .login-link {
+            font-size: 1rem;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        .register-container .login-link a {
+            color: #2575fc;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .register-container .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Styling for file input (Ensuring visibility and usability) */
+        .register-container input[type="file"] {
+            font-size: 1rem;
+            padding: 10px;
+            cursor: pointer;
+            color: #4A90E2;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+
+        .register-container input[type="file"]:hover {
+            border-color: #00bcd4;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .register-container {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 1.8rem;
+            }
+
+            .register-container button {
+                font-size: 1rem;
+                padding: 10px;
+            }
+        }
+
+        /* Flash Message Styling */
+        .flash-message {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .flash-success {
+            background-color: #4caf50; /* Green */
+            color: white;
+        }
+
+        .flash-danger {
+            background-color: #f44336; /* Red */
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <h2>Register for Resume Matching</h2>
+
+        <!-- Display Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+
+        <form action="/register" method="POST" enctype="multipart/form-data">
+            <label for="universityRoll">University Roll</label>
+            <input type="text" id="universityRoll" name="universityRoll" required placeholder="Enter your University Roll">
+
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required placeholder="Enter your Name">
+
+            <label for="gender">Gender</label>
+            <select id="gender" name="gender" required>
+                <option value="">Select Gender</option>  <!-- No default selection -->
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <label for="mobile">Mobile Number</label>
+            <input type="text" id="mobile" name="mobile" required placeholder="Enter your Mobile Number">
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required placeholder="Enter your Email">
+
+            <label for="degree">Degree (B.Tech/M.Tech/MCA)</label>
+            <select id="degree" name="degree" required>
+                <option value="">Select Degree</option>  <!-- No default selection -->
+                <option value="B.Tech">B.Tech</option>
+                <option value="M.Tech">M.Tech</option>
+                <option value="MCA">MCA</option>
+            </select>
+
+            <label for="department">Department</label>
+            <select id="department" name="department" required>
+                <option value="">Select Department</option>  <!-- No default selection -->
+                <option value="CSE">CSE</option>
+                <option value="IT">IT</option>
+                <option value="ME">ME</option>
+                <option value="ECE">ECE</option>
+                <option value="EE">EE</option>
+                <option value="CA">CA</option>
+                <option value="PE">PE</option>
+            </select>
+
+            <label for="password">Password (Min 8 characters)</label>
+            <input type="password" id="password" name="password" required minlength="8" placeholder="Enter your Password">
+
+            <button type="submit">Register</button>
+        </form>
+
+        <div class="login-link">
+            <p>Already have an account? <a href="login">Login here</a></p>
+        </div>
+    </div>
+</body>
+</html>

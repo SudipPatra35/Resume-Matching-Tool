@@ -1,0 +1,278 @@
+CREATE TABLE users (
+    universityRoll VARCHAR(255) PRIMARY KEY,
+    name VARCHAR(255),
+    gender VARCHAR(255),
+    mobile VARCHAR(255),
+    email VARCHAR(255),
+    degree VARCHAR(255),
+    department VARCHAR(255),
+    password VARCHAR(255) NOT NULL,
+    filename VARCHAR(255),
+    approved VARCHAR(255) DEFAULT 'PENDING'
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(to right, #8bc34a, #00bcd4);
+            color: #fff;
+            font-size: 16px;
+            line-height: 1.6;
+
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            overflow: auto;
+            padding-top: 50px;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2rem;
+            color: #483d8b;  /* Dark Slate Blue */
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Admin Dashboard Container */
+        .admin-dashboard-container {
+            margin: auto;
+            max-width: 900px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            overflow-y: auto;
+
+        }
+
+        .admin-dashboard-button {
+            margin: auto;
+            max-width: 900px;
+            width: 100%;
+            padding: 30px;
+            text-align: center;
+            overflow-y: auto;
+        }
+
+        .admin-dashboard-container h3 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .admin-dashboard-container p {
+            font-size: 1rem;
+            color: #333;
+        }
+
+        .resume-list-table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .resume-list-table th{
+            padding: 12px;
+            border: 1px solid #ddd;
+            color: #1a0000;
+        }
+
+        .resume-list-table td {
+            color : #000000;
+            padding: 12px;
+            border: 1px solid #ddd;
+
+        }
+
+        .resume-list-table th {
+            background-color: #00bcd4;
+            color: #1a0000;
+        }
+
+        .resume-list-table tr:nth-child(even) {
+            background-color: #f4f4f4;
+            color: #1a0000;
+        }
+
+        /* Button group */
+        .button-group {
+            margin-top: 20px;
+        }
+
+        .button-group button {
+            background-color: #2575fc;
+            color: #fff;
+            font-size: 1.2rem;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .button-group button:hover {
+            background-color: #6a11cb;
+            transform: translateY(-2px);
+        }
+
+        .button-group button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .admin-dashboard-container {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 1.8rem;
+            }
+
+            .button-group button {
+                font-size: 1rem;
+                padding: 10px;
+            }
+
+            .resume-list-table {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-dashboard-container">
+        <h2>Admin Dashboard</h2>
+
+        <!-- Resume List Table -->
+        <h3>Unapproved Resume List</h3>
+        <form action="/approve" method="POST">
+            <table class="resume-list-table">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="select-all" /> Select All</th>
+                        <th>User ID</th>
+                        <th>Filename</th>
+                        <th>Resume</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for resume in resumes %}
+                    <tr>
+                        <td><input type="checkbox" name="selected_resumes" value="{{ resume.universityRoll }}" class="resume-checkbox" /></td>
+                        <td>{{ resume[0] }}</td>
+                        <td>{{ resume[1] }}</td>
+                        <td><a href="{{ url_for('uploaded_file', user_id=resume[0]) }}" class="resume-link" target="_blank">View Resume</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Action Buttons -->
+            <div class="button-group">
+                <button type="submit" id="approve-resumes" disabled>Approve Selected Resumes</button>
+                <button type="submit" id="reject-resumes" formaction="/reject" disabled>Reject Selected Resumes</button>
+            </div>
+        </form>
+    </div>
+    <div class="admin-dashboard-button">
+        <a href="{{ url_for('matching') }}" class="button-group">
+            <button>Match Resumes</button>
+        </a>
+    </div>
+
+    <!-- JavaScript to handle Select All, enabling buttons -->
+    <script>
+        // Select All checkbox functionality
+        const selectAllCheckbox = document.getElementById('select-all');
+        const resumeCheckboxes = document.querySelectorAll('.resume-checkbox');
+        const approveButton = document.getElementById('approve-resumes');
+        const rejectButton = document.getElementById('reject-resumes');
+
+        // Function to check/uncheck all checkboxes
+        selectAllCheckbox.addEventListener('change', () => {
+            const isChecked = selectAllCheckbox.checked;
+            resumeCheckboxes.forEach(checkbox => {
+                checkbox.checked = isChecked;
+            });
+            toggleButtons();
+        });
+
+        // Function to toggle the state of the action buttons
+        function toggleButtons() {
+            const anySelected = Array.from(resumeCheckboxes).some(checkbox => checkbox.checked);
+            approveButton.disabled = !anySelected;
+            rejectButton.disabled = !anySelected;
+        }
+
+        // Listen for individual checkbox changes to toggle buttons
+        resumeCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', toggleButtons);
+        });
+    </script>
+</body>
+</html>                                                                                                                                                                                                                               This is my Admin html,,,                                                                                                                                              THis is my approve_resume function :                                                                                                                         @app.route('/approve', methods=['POST'])
+def approve_resumes():
+    if 'admin_id' not in session:
+        flash('You must log in as an admin to approve resumes', 'danger')
+        return redirect(url_for('index'))
+
+    selected_resumes = request.form.getlist('selected_resumes')
+    print(f"Selected Resumes: {selected_resumes}")  # Debugging output
+
+    if not selected_resumes:
+        flash('No resumes selected for approval', 'danger')
+        return redirect(url_for('admin_page'))
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        for eachResume in selected_resumes:
+            cursor.execute("UPDATE users SET approved = 'TRUE' WHERE universityRoll = %s", (eachResume,))
+        connection.commit()
+        flash('Selected resumes have been approved!', 'success')
+    except Exception as e:
+        print(f"Error: {e}")
+        flash('An error occurred while approving resumes', 'danger')
+    finally:
+        cursor.close()
+        connection.close()
+
+    return redirect(url_for('admin_page'))                                                                                                                                                                                      The problem is : After approving by admin the resumes are not approving.. Fix the problem and give the the full codes.... Highlight the changes
