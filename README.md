@@ -46,8 +46,7 @@ MySQL
 
 ### 2️⃣ Clone the Repository
 
-git clone https://github.com/yourusername/resume-matching-tool.git
-cd resume-matching-tool
+git clone https://github.com/SudipPatra35/Resume-Matching-Tool.git
 
 3️⃣ Install Dependencies
 
